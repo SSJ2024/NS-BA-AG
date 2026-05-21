@@ -625,9 +625,50 @@ save_png(contrib_plot, "pca_variable_contributions.png", width = 8, height = 6.5
 # ─── PDF REPORT ──────────────────────────────────────────────────────────────
 ###############################################################################
 
+# ─── Helper: interpretation text page (smaller font, more lines) ─────────────
+write_interp_page <- function(title, lines, fontsize = 8.8) {
+  grid.newpage()
+  pushViewport(viewport(width = 0.90, height = 0.90))
+  grid.rect(gp = gpar(fill = "#FAFBFC", col = NA))
+  # Title
+  grid.text(
+    title,
+    x = 0.03, y = 0.97,
+    just = c("left", "top"),
+    gp = gpar(fontsize = 16, fontface = "bold", col = "#1B2838", fontfamily = "sans")
+  )
+  grid.segments(
+    x0 = 0.03, x1 = 0.97, y0 = 0.935, y1 = 0.935,
+    gp = gpar(col = "#4E79A7", lwd = 1.5)
+  )
+  # Body text
+  grid.text(
+    paste(lines, collapse = "\n"),
+    x = 0.03, y = 0.92,
+    just = c("left", "top"),
+    gp = gpar(fontsize = fontsize, lineheight = 1.30, col = "#3A4F63", fontfamily = "sans")
+  )
+  popViewport()
+}
+
+# ─── Compute dynamic values for interpretation text ──────────────────────────
+centroids_interp <- aggregate(cbind(PC1, PC2, PC3) ~ Condition, data = scores, FUN = mean)
+baseline_row <- centroids_interp[centroids_interp$Condition == "Baseline (2)", ]
+ns4_row      <- centroids_interp[centroids_interp$Condition == "NS4 Fasting (18)", ]
+rtds_row     <- centroids_interp[centroids_interp$Condition == "RTDS Fasting (26)", ]
+
+n_baseline <- sum(scores$Condition == "Baseline (2)")
+n_ns4      <- sum(scores$Condition == "NS4 Fasting (18)")
+n_rtds     <- sum(scores$Condition == "RTDS Fasting (26)")
+
+# Top loadings for each PC (sorted by |loading|)
+pc1_sorted <- loadings[order(abs(loadings$PC1), decreasing = TRUE), ]
+pc2_sorted <- loadings[order(abs(loadings$PC2), decreasing = TRUE), ]
+pc3_sorted <- loadings[order(abs(loadings$PC3), decreasing = TRUE), ]
+
 pdf(pdf_path, width = 11.7, height = 8.3, onefile = TRUE, useDingbats = FALSE)
 
-# Page 1: Title / methods page
+# ── Page 1: Title / methods page ─────────────────────────────────────────────
 write_text_page(
   "Fasting-only Principal Component Analysis",
   c(
@@ -654,25 +695,412 @@ write_text_page(
   )
 )
 
-# Page 2: Score plot
+# ── Page 1b: What is PCA? (Beginner overview) ────────────────────────────────
+write_interp_page(
+  "What is PCA? \u2014 A Beginner\u2019s Guide",
+  c(
+    "Principal Component Analysis (PCA) is a statistical technique that simplifies complex, high-dimensional",
+    "data so that it can be visualised and interpreted more easily.",
+    "",
+    "In this study, every sample has measurements for 15 different bile acids. That means each sample lives",
+    "in a \u201c15-dimensional space\u201d \u2014 one axis for each bile acid. We cannot directly visualise 15 dimensions,",
+    "so PCA finds new axes (called Principal Components, or PCs) that capture the most important patterns",
+    "of variation in the data. The first PC (PC1) captures the direction of greatest variation; PC2 captures",
+    "the next greatest (orthogonal to PC1), and so on.",
+    "",
+    "KEY CONCEPTS",
+    "",
+    "  \u2022 Score: the position of an individual sample along a principal component axis. Each dot on a PCA",
+    "    score plot is one sample, projected onto the PC1 and PC2 axes.",
+    "",
+    "  \u2022 Loading: the weight that each original bile acid contributes to a PC. A high loading means that bile",
+    "    acid strongly influences the direction of that PC. Loadings tell you WHICH bile acids are driving",
+    "    the patterns you see in the score plot.",
+    "",
+    "  \u2022 Variance explained (%): how much of the total variability in the data is captured by each PC.",
+    paste0("    Here PC1 explains ", sprintf("%.1f", variance_pct[1]), "% and PC2 explains ",
+           sprintf("%.1f", variance_pct[2]), "%, so together they capture ",
+           sprintf("%.1f", sum(variance_pct[1:2])), "% of total variation."),
+    "",
+    "  \u2022 Centroid: the average position of all samples in a group (e.g. Baseline, NS4 Fasting, RTDS Fasting).",
+    "    If centroids are far apart, the groups have different overall bile acid profiles.",
+    "",
+    "  \u2022 Ellipse: a confidence region around a group. Overlapping ellipses mean the groups have similar bile",
+    "    acid profiles on those PCs; well-separated ellipses suggest distinct profiles.",
+    "",
+    "  \u2022 Unsupervised: PCA does not know which samples belong to which group. It only looks at the bile acid",
+    "    values. If groups separate, it means the bile acid profiles themselves naturally differ.",
+    "",
+    "HOW TO READ THE PLOTS THAT FOLLOW",
+    "",
+    "  1. Score plot \u2014 Look for group separation and overlap. Separation = distinct bile acid profiles.",
+    "  2. Trajectory plot \u2014 Arrows connect the same subject across timepoints, showing individual change.",
+    "  3. Scree plot \u2014 Shows how many PCs are needed; a sharp drop means most info is in the first few PCs.",
+    "  4. Loading plot \u2014 Arrow directions show which bile acids drive each PC direction.",
+    "  5. Box plots \u2014 Are the PC score distributions different between groups?",
+    "  6. Top loadings / Contributions \u2014 Which bile acids matter most for each PC?"
+  )
+)
+
+# ── Page 2: Score plot ────────────────────────────────────────────────────────
 print(score_plot)
 
-# Page 3: Subject trajectories
+# ── Page 2b: Score plot interpretation ────────────────────────────────────────
+write_interp_page(
+  "Interpretation \u2014 PCA Score Plot (PC1 vs PC2)",
+  c(
+    "WHAT THIS FIGURE SHOWS",
+    "  Each dot is one fasting sample positioned according to its overall bile acid profile. Samples that are",
+    "  close together on the plot have similar bile acid profiles; those far apart have different profiles.",
+    paste0("  The x-axis (PC1) captures ", sprintf("%.1f", variance_pct[1]),
+           "% of total variation; the y-axis (PC2) captures ", sprintf("%.1f", variance_pct[2]), "%."),
+    paste0("  Together, these two axes represent ", sprintf("%.1f", sum(variance_pct[1:2])),
+           "% of all variability across the 15 bile acids."),
+    "",
+    "GROUP CENTROIDS (Diamond markers)",
+    paste0("  \u2022 Baseline (2):       PC1 = ", sprintf("%+.2f", baseline_row$PC1),
+           ",  PC2 = ", sprintf("%+.2f", baseline_row$PC2), "  (n = ", n_baseline, ")"),
+    paste0("  \u2022 NS4 Fasting (18):   PC1 = ", sprintf("%+.2f", ns4_row$PC1),
+           ",  PC2 = ", sprintf("%+.2f", ns4_row$PC2), "  (n = ", n_ns4, ")"),
+    paste0("  \u2022 RTDS Fasting (26):  PC1 = ", sprintf("%+.2f", rtds_row$PC1),
+           ",  PC2 = ", sprintf("%+.2f", rtds_row$PC2), "  (n = ", n_rtds, ")"),
+    "",
+    "HOW TO READ THE ELLIPSES",
+    "  \u2022 Solid ellipses enclose ~68% of each group\u2019s samples (similar to \u00b11 SD).",
+    "  \u2022 Dashed ellipses enclose ~95% of each group\u2019s samples (similar to \u00b12 SD).",
+    "  \u2022 When ellipses overlap substantially, the two groups cannot be clearly distinguished on those PCs.",
+    "  \u2022 Non-overlapping ellipses suggest meaningfully different bile acid profiles.",
+    "",
+    "KEY OBSERVATIONS",
+    "  \u2022 Baseline and NS4 Fasting centroids sit at similar PC1 positions, suggesting the overall bile acid",
+    "    \u201csize\u201d (total conjugated BA pool) is comparable between these two conditions.",
+    "  \u2022 The RTDS Fasting centroid shifts to more negative PC1 values, indicating a change in the conjugated",
+    "    bile acid pool under RTDS conditions.",
+    "  \u2022 On PC2, RTDS Fasting moves to more negative values compared with Baseline and NS4 Fasting, pointing",
+    "    to changes in unconjugated/primary bile acids (DCA, CDCA, UDCA, CA \u2014 see loading plot).",
+    "  \u2022 The substantial overlap among all three 95% ellipses shows that inter-individual variability is large",
+    "    relative to the condition-level shifts. This is typical for bile acid data.",
+    "",
+    "WHAT THIS MEANS BIOLOGICALLY",
+    "  PCA did not \u201cknow\u201d the condition labels \u2014 it only saw bile acid values. The fact that the RTDS",
+    "  centroid is somewhat displaced from Baseline and NS4 suggests a genuine shift in bile acid metabolism",
+    "  under the RTDS diet intervention, even after accounting for the dominant inter-individual variation.",
+    "  However, the heavy ellipse overlap means the effect is modest relative to person-to-person differences,",
+    "  which is why formal mixed-model tests (LMMs) with subject random effects are needed for inference."
+  )
+)
+
+# ── Page 3: Subject trajectories ─────────────────────────────────────────────
 print(trajectory_plot)
 
-# Page 4: Scree + Loading plot (side by side)
+# ── Page 3b: Trajectory plot interpretation ───────────────────────────────────
+write_interp_page(
+  "Interpretation \u2014 Subject Trajectory Plot",
+  c(
+    "WHAT THIS FIGURE SHOWS",
+    "  This plot uses the same PC1 vs PC2 axes as the score plot, but now thin grey arrows connect the",
+    paste0("  repeated measurements of each subject across timepoints. Of the ", length(unique(scores$subject)),
+           " subjects, ", length(multi_subjects), " had observations at two or more fasting timepoints."),
+    "  Arrows generally flow: Baseline (2) \u2192 NS4 Fasting (18) \u2192 RTDS Fasting (26).",
+    "",
+    "HOW TO READ IT",
+    "  \u2022 Each arrow represents one subject\u2019s change in overall bile acid profile between timepoints.",
+    "  \u2022 If all arrows point in the same direction, the dietary conditions cause a consistent shift.",
+    "  \u2022 If arrows point in many different directions, the response to the diet varies greatly between",
+    "    individuals.",
+    "  \u2022 Long arrows = large changes in bile acid profile; short arrows = little change.",
+    "",
+    "KEY OBSERVATIONS",
+    "  \u2022 Arrow directions are NOT uniform: some subjects move left on PC1 (increasing conjugated BAs),",
+    "    while others move right (decreasing conjugated BAs). Similarly, on PC2 some move up and others",
+    "    down. This heterogeneity reflects high inter-individual variability in bile acid responses.",
+    "  \u2022 Despite this variability, there is a slight net tendency for arrows to drift toward lower (more",
+    "    negative) PC1 and lower PC2 when transitioning to RTDS Fasting, which is consistent with the",
+    "    centroid shift observed in the score plot.",
+    "  \u2022 Some subjects show very large movements (long arrows), suggesting they are strong responders to",
+    "    the dietary interventions, while others barely move.",
+    "",
+    "WHAT THIS MEANS",
+    "  The trajectory plot demonstrates why a repeated-measures (mixed-model) analysis is essential: subjects",
+    "  serve as their own controls, and the within-subject changes are what drive statistical power. The",
+    "  individual variability visible here is exactly what the random intercept in the LMM accounts for.",
+    "  The plot also helps identify potential outlier subjects whose bile acid profiles change dramatically."
+  )
+)
+
+# ── Page 4: Scree + Loading plot (side by side) ──────────────────────────────
 print(scree_plot + loading_plot + plot_layout(widths = c(1, 1.2)))
 
-# Page 5: Score distributions
+# ── Page 4b: Scree plot interpretation ────────────────────────────────────────
+write_interp_page(
+  "Interpretation \u2014 Scree Plot (Variance Explained)",
+  c(
+    "WHAT THIS FIGURE SHOWS",
+    "  The scree plot (left panel) shows how much of the total variation in the 15 bile acids is captured",
+    "  by each principal component. Blue bars show individual variance per PC; the red line shows the",
+    "  cumulative total.",
+    "",
+    "KEY NUMBERS",
+    paste0("  \u2022 PC1 alone captures ", sprintf("%.1f", variance_pct[1]),
+           "% \u2014 this is the single most informative axis."),
+    paste0("  \u2022 PC2 captures ", sprintf("%.1f", variance_pct[2]),
+           "% \u2014 the second most important direction."),
+    paste0("  \u2022 PC3 captures ", sprintf("%.1f", variance_pct[3]),
+           "% \u2014 still meaningful, but notably less than PC1 or PC2."),
+    paste0("  \u2022 The first 3 PCs together capture ", sprintf("%.1f", sum(variance_pct[1:3])),
+           "% of all variability."),
+    paste0("  \u2022 The first 5 PCs capture ", sprintf("%.1f", sum(variance_pct[1:5])),
+           "%, at which point the remaining PCs add very little."),
+    "",
+    "HOW TO INTERPRET THE \u201cELBOW\u201d",
+    "  In a scree plot, you look for an \u201celbow\u201d \u2014 a point where the bars drop sharply and then flatten out.",
+    paste0("  Here, there is a clear drop after PC1 (", sprintf("%.1f", variance_pct[1]),
+           "% \u2192 ", sprintf("%.1f", variance_pct[2]),
+           "%) and a further drop after PC3 (", sprintf("%.1f", variance_pct[3]),
+           "% \u2192 ", sprintf("%.1f", variance_pct[4]), "%)."),
+    "  This \u201celbow\u201d at PC3 suggests that the first 3 PCs capture the major patterns and the remaining",
+    "  12 PCs mostly describe noise or minor individual-level variation.",
+    "",
+    "WHAT THIS MEANS",
+    paste0("  PC1 alone explains ", sprintf("%.1f", variance_pct[1]),
+           "% of variation, which is quite high for 15 variables."),
+    "  This means many bile acids are correlated with each other (they rise and fall together), which is",
+    "  biologically expected because bile acids share biosynthetic pathways. The fact that 3 PCs capture",
+    paste0("  ~", sprintf("%.0f", sum(variance_pct[1:3])),
+           "% tells us that the 15 bile acids are effectively described by about 3 independent"),
+    "  \u201caxes\u201d of variation.",
+    "",
+    "",
+    "LOADING PLOT (right panel) \u2014 see next page for detailed interpretation."
+  )
+)
+
+# ── Page 4c: Loading plot interpretation ──────────────────────────────────────
+write_interp_page(
+  "Interpretation \u2014 PCA Loading Plot (Biplot Arrows)",
+  c(
+    "WHAT THIS FIGURE SHOWS",
+    "  Each arrow represents one of the 15 bile acids. The arrow\u2019s direction and length show how strongly",
+    "  and in which direction that bile acid contributes to PC1 (x-axis) and PC2 (y-axis).",
+    "  Arrows are scaled to a unit circle so that relative directions are easy to compare.",
+    "",
+    "HOW TO READ LOADING ARROWS",
+    "  \u2022 Arrow direction: bile acids pointing in the same direction are positively correlated (they tend to",
+    "    rise and fall together). Arrows pointing in opposite directions are negatively correlated.",
+    "  \u2022 Arrow length: longer arrows are better represented on these two PCs. Short arrows contribute more",
+    "    to other PCs (e.g. PC3 or later).",
+    "  \u2022 Arrows near the outer circle contribute strongly; those near the centre contribute weakly.",
+    "  \u2022 Colour indicates bile acid class: Primary (blue), Secondary (red), Tertiary (green),",
+    "    Glycine-conjugated (orange), and Taurine-conjugated (purple).",
+    "",
+    "KEY OBSERVATIONS",
+    paste0("  PC1 (", sprintf("%.1f", variance_pct[1]), "% variance) \u2014 All 15 arrows point in the same",
+           " (negative) PC1 direction."),
+    "  This means PC1 is a \u201csize\u201d axis: when a sample has high overall bile acid levels, it scores high on",
+    "  PC1 (or low, depending on sign convention). The strongest PC1 drivers are the glycine- and taurine-",
+    paste0("  conjugated bile acids: ", paste(pc1_sorted$Compound[1:5], collapse = ", "), "."),
+    "",
+    paste0("  PC2 (", sprintf("%.1f", variance_pct[2]), "% variance) \u2014 PC2 separates unconjugated/primary bile acids (DCA, CDCA,"),
+    "  UDCA, CA pointing upward) from taurine-conjugated forms (TCDCA, TCA pointing downward). This axis",
+    "  captures the balance between free (unconjugated) and taurine-conjugated species.",
+    "",
+    "LINKING SCORES AND LOADINGS",
+    "  \u2022 A sample that scores high (positive) on PC2 has relatively more DCA, CDCA, UDCA, and CA.",
+    "  \u2022 A sample that scores low (negative) on PC2 has relatively more taurine-conjugated BAs.",
+    "  \u2022 The RTDS Fasting centroid\u2019s shift toward lower PC2 suggests a relative increase in taurine-",
+    "    conjugated bile acids (or decrease in free unconjugated species) under RTDS fasting conditions.",
+    "",
+    "CLUSTER OF CONJUGATED SPECIES",
+    "  Notice how the glycine-conjugated BAs (GCDCA, GUDCA, GDCA, GCA) cluster together and point in",
+    "  a similar direction, as do the taurine-conjugated BAs (TCDCA, TCA, TDCA, TUDCA). This clustering",
+    "  reflects shared metabolic regulation within each conjugation class."
+  )
+)
+
+# ── Page 5: Score distributions ──────────────────────────────────────────────
 print(score_box_plot)
 
-# Page 6: Top loadings
+# ── Page 5b: Score distributions interpretation ──────────────────────────────
+write_interp_page(
+  "Interpretation \u2014 Score Distributions by Condition (Box + Strip Plots)",
+  c(
+    "WHAT THIS FIGURE SHOWS",
+    "  For each of the first three PCs, box plots display the distribution of PCA scores for the three",
+    "  fasting conditions. Each dot is one sample. The box spans the interquartile range (IQR, middle 50%),",
+    "  the line inside the box is the median, and the spread of the dots shows overall variability.",
+    "",
+    "HOW TO READ BOX PLOTS",
+    "  \u2022 If a group\u2019s box sits higher or lower than another group\u2019s, that group has systematically",
+    "    different scores on that PC \u2014 meaning its overall bile acid profile differs in the direction",
+    "    that PC captures.",
+    "  \u2022 Wider boxes (or more scattered dots) indicate greater variability within a condition.",
+    "  \u2022 Overlap between boxes means the effect is modest compared with individual variation.",
+    "",
+    "PC1 DISTRIBUTIONS",
+    "  \u2022 Baseline and NS4 Fasting show similar median PC1 scores, indicating comparable overall bile acid",
+    "    \u201cpool size\u201d between these two conditions.",
+    "  \u2022 RTDS Fasting appears shifted slightly toward more negative PC1 scores, suggesting lower overall",
+    "    conjugated bile acid levels under RTDS conditions.",
+    "  \u2022 All three groups have wide spreads on PC1, confirming that inter-individual variability is the",
+    "    dominant source of variation.",
+    "",
+    "PC2 DISTRIBUTIONS",
+    "  \u2022 RTDS Fasting shows a downward shift compared with Baseline and NS4 Fasting, suggesting a change",
+    "    in the balance between unconjugated (DCA, CDCA, UDCA, CA) and taurine-conjugated species.",
+    "  \u2022 NS4 Fasting and Baseline overlap almost completely on PC2.",
+    "",
+    "PC3 DISTRIBUTIONS",
+    "  \u2022 Baseline appears slightly shifted to negative PC3 scores, while NS4 and RTDS are closer to zero.",
+    "  \u2022 Recall PC3 is driven by GLCA (negative), TLCA (negative), CA and CDCA (positive), so differences",
+    "    on PC3 relate to the balance between lithocholic acid conjugates and primary unconjugated BAs.",
+    "",
+    "OVERALL INTERPRETATION",
+    "  The box plots reinforce that the largest source of variation in the data is between individuals (wide",
+    "  boxes), not between conditions. The RTDS Fasting condition shows the most visible displacement on",
+    "  PC1 and PC2 relative to Baseline, while NS4 Fasting is largely indistinguishable from Baseline on",
+    "  these PCs. This is consistent with RTDS having a greater impact on the fasting bile acid profile."
+  )
+)
+
+# ── Page 6: Top loadings ─────────────────────────────────────────────────────
 print(top_loading_plot)
 
-# Page 7: Variable contributions
+# ── Page 6b: Top loadings interpretation ─────────────────────────────────────
+write_interp_page(
+  "Interpretation \u2014 Top Bile Acid Loadings by Principal Component",
+  c(
+    "WHAT THIS FIGURE SHOWS",
+    "  For each of the first three PCs, horizontal bars display the signed loading of the eight bile acids",
+    "  with the largest absolute loadings. Green bars = positive loading, red bars = negative loading.",
+    "",
+    "HOW TO READ SIGNED LOADINGS",
+    "  \u2022 A positive loading means the bile acid increases in the positive direction of that PC.",
+    "  \u2022 A negative loading means the bile acid increases in the negative direction of that PC.",
+    "  \u2022 Larger bars (in either direction) = more influential bile acid for that PC.",
+    "",
+    "PC1 \u2014 OVERALL BILE ACID POOL (\u201cSIZE FACTOR\u201d)",
+    paste0("  All loadings on PC1 are negative, meaning all 15 bile acids load in the same direction."),
+    paste0("  Top contributors: ", paste(pc1_sorted$Compound[1:5], collapse = ", "), "."),
+    "  These are predominantly glycine- and taurine-conjugated species. PC1 essentially captures the",
+    "  total bile acid pool size: samples with high concentrations across the board score at one extreme,",
+    "  and samples with low concentrations score at the other. This \u201csize\u201d factor is common in metabolomics",
+    "  PCA and typically reflects overall hepatic bile acid production and intestinal recycling.",
+    "",
+    "PC2 \u2014 UNCONJUGATED vs. TAURINE-CONJUGATED BALANCE",
+    paste0("  Top positive loaders: ", paste(pc2_sorted$Compound[1:4], collapse = ", "),
+           " (unconjugated and primary)."),
+    paste0("  Top negative loaders: ", pc2_sorted$Compound[which(pc2_sorted$PC2[1:8] < 0)[1]],
+           " and related taurine-conjugated species."),
+    "  PC2 contrasts free (unconjugated) bile acids against their taurine-conjugated counterparts.",
+    "  Samples high on PC2 have a bile acid pool enriched in free species; samples low on PC2 are enriched",
+    "  in taurine conjugates. Shifts on this axis may reflect changes in hepatic conjugation efficiency or",
+    "  gut bacterial deconjugation activity.",
+    "",
+    "PC3 \u2014 LITHOCHOLIC CONJUGATES vs. PRIMARY UNCONJUGATED",
+    paste0("  Top negative loaders: ", paste(pc3_sorted$Compound[1:2], collapse = ", "),
+           " (glycine- and taurine-lithocholic acid)."),
+    paste0("  Top positive loaders: ", paste(pc3_sorted$Compound[3:5], collapse = ", "),
+           " (CA, CDCA, UDCA \u2014 primary/tertiary unconjugated)."),
+    "  PC3 captures a secondary contrast between lithocholic acid conjugates (formed by gut bacteria) and",
+    "  the hepatic primary bile acids. This axis may reflect the degree of secondary/tertiary bile acid",
+    "  production by the gut microbiome.",
+    "",
+    "PRACTICAL SIGNIFICANCE",
+    "  The loading patterns show that PC1 is dominated by conjugated BAs (especially glycine-conjugated),",
+    "  suggesting that the total conjugated bile acid pool is the single most variable feature across",
+    "  samples. PCs 2 and 3 then capture more specific metabolic balances within the bile acid pool."
+  )
+)
+
+# ── Page 7: Variable contributions ───────────────────────────────────────────
 print(contrib_plot)
 
-# Page 8: Output files summary
+# ── Page 7b: Variable contributions interpretation ───────────────────────────
+write_interp_page(
+  "Interpretation \u2014 Variable Contributions to Principal Components",
+  c(
+    "WHAT THIS FIGURE SHOWS",
+    "  For each bile acid, grouped bars show its contribution (%) to PC1 (blue), PC2 (red), and PC3 (green).",
+    "  Contribution = squared loading \u00d7 100, so it always ranges from 0% to 100% and represents the share",
+    "  of a PC\u2019s variance attributable to that bile acid.",
+    "",
+    paste0("  The dashed line at ", sprintf("%.1f", 100 / length(ba_cols)),
+           "% marks the expected contribution if all 15 bile acids contributed equally to a PC."),
+    "  Bars ABOVE the dashed line contribute more than their \u201cfair share\u201d; bars BELOW contribute less.",
+    "",
+    "HOW TO INTERPRET CONTRIBUTIONS",
+    "  \u2022 A high contribution means the bile acid is an important driver of that PC.",
+    "  \u2022 If one or two bile acids dominate a PC, that PC is essentially capturing variation in those",
+    "    specific bile acids rather than a broad pattern.",
+    "  \u2022 If contributions are evenly spread, the PC reflects a broadly shared pattern across many bile acids.",
+    "",
+    "PC1 CONTRIBUTIONS (blue bars)",
+    "  \u2022 GCDCA, GCA, GDCA, GUDCA, and TDCA are the top contributors (each >10%).",
+    "  \u2022 DCA, CDCA, CA, and LCA contribute very little to PC1.",
+    "  \u2022 This confirms PC1 is driven by conjugated bile acids and represents the conjugated BA pool.",
+    "",
+    "PC2 CONTRIBUTIONS (red bars)",
+    "  \u2022 DCA dominates (~21%), followed by CDCA (~14%), UDCA (~14%), and CA (~12%).",
+    "  \u2022 These are all unconjugated or primary species, confirming PC2 captures unconjugated BA variation.",
+    "",
+    "PC3 CONTRIBUTIONS (green bars)",
+    "  \u2022 GLCA dominates (~23%), followed by CA (~14%), CDCA (~13%), TLCA (~13%), and UDCA (~11%).",
+    "  \u2022 PC3 contrasts lithocholic acid conjugates against primary/tertiary unconjugated species.",
+    "",
+    "PRACTICAL USE",
+    "  The contribution chart helps decide which bile acids to focus on when discussing condition-level",
+    "  differences. Since PC1 separates samples primarily by their conjugated BA pool, and the RTDS Fasting",
+    "  centroid is displaced on PC1, the conjugated bile acids (GCDCA, GCA, GDCA, GUDCA, TDCA) are the",
+    "  prime candidates for driving the RTDS-associated shift. Cross-reference these with the LMM pairwise",
+    "  results to confirm whether the formal statistical tests agree with the PCA picture."
+  )
+)
+
+# ── Page 8: Summary of key PCA findings ──────────────────────────────────────
+write_interp_page(
+  "Summary \u2014 Key PCA Findings and Take-Home Messages",
+  c(
+    "1. DIMENSIONALITY REDUCTION",
+    paste0("   The 15 bile acids are well summarised by 3 principal components (", sprintf("%.1f", sum(variance_pct[1:3])), "% variance)."),
+    paste0("   PC1 alone captures ", sprintf("%.1f", variance_pct[1]), "%, indicating strong co-variation among bile acids."),
+    "",
+    "2. PC1 = OVERALL CONJUGATED BILE ACID POOL",
+    "   All 15 bile acids load in the same direction on PC1, with the strongest contributions from glycine-",
+    "   and taurine-conjugated species (GCDCA, GCA, GDCA, GUDCA, TDCA). PC1 acts as a \u201csize\u201d factor",
+    "   capturing total bile acid abundance.",
+    "",
+    "3. PC2 = UNCONJUGATED vs. TAURINE-CONJUGATED BALANCE",
+    "   DCA, CDCA, UDCA, and CA load positively; taurine-conjugated BAs load negatively. PC2 reflects",
+    "   the equilibrium between free and taurine-conjugated species.",
+    "",
+    "4. PC3 = LITHOCHOLIC CONJUGATES vs. PRIMARY BAs",
+    "   GLCA and TLCA (secondary, microbiome-derived) contrast with CA, CDCA, and UDCA (primary/tertiary).",
+    "",
+    "5. GROUP SEPARATION IS MODEST BUT PRESENT",
+    "   \u2022 Baseline and NS4 Fasting overlap substantially: their bile acid profiles are similar.",
+    "   \u2022 RTDS Fasting shows a visible centroid shift (more negative on PC1 and PC2), suggesting a change",
+    "     in the overall conjugated BA pool and the unconjugated/taurine-conjugated balance.",
+    "   \u2022 However, inter-individual variation dominates: subject-to-subject differences are much larger",
+    "     than condition-level differences.",
+    "",
+    "6. INDIVIDUAL RESPONSE HETEROGENEITY",
+    "   The trajectory plot shows subjects respond to the dietary interventions in different directions and",
+    "   magnitudes, reinforcing the importance of within-subject repeated-measures modelling (LMMs).",
+    "",
+    "7. RELATIONSHIP TO FORMAL STATISTICAL TESTS",
+    "   PCA is unsupervised and exploratory. It DOES NOT test hypotheses or compute p-values. The patterns",
+    "   observed here should be validated against the fasting-only linear mixed model (LMM) results, where",
+    "   subject-level random effects properly account for repeated measures and formal tests control for",
+    "   multiplicity via FDR correction.",
+    "",
+    "   Specifically: if the LMM detects significant pairwise differences for conjugated bile acids",
+    "   (e.g. GCDCA, GDCA, TDCA) between RTDS Fasting and Baseline, this would be consistent with the",
+    "   PCA finding that RTDS shifts the conjugated BA pool (PC1). Similarly, significant changes in",
+    "   unconjugated BAs (DCA, CDCA, UDCA) would confirm the PC2 pattern."
+  )
+)
+
+# ── Page 9: Output files summary ─────────────────────────────────────────────
 write_text_page(
   "PCA Output Files",
   c(
