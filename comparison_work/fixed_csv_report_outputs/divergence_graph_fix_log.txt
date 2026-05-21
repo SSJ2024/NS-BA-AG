@@ -1,0 +1,4 @@
+Divergence graph verification passed.
+Branch geometry regenerated as blue 2->18->26 and orange 18->23->26.
+PDF pages: 26
+PDF size bytes: 2113383

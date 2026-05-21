@@ -1,0 +1,5 @@
+Fixed report verification passed.
+Result rows: 19
+Per-outcome plots: 19
+PDF pages: 26
+Key corrected calls checked: GCA 23 vs 18 is FDR ns; Unconjugated aggregate is FDR ns; Total_BA N=126.

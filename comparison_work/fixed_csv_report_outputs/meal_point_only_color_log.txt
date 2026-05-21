@@ -1,0 +1,5 @@
+Meal-point color correction passed.
+Plot rule: baseline 2, fasting 18, and RTDS 26 points are blue; only timepoint 23 point is orange.
+Branch lines remain blue for 2->18->26 and orange for 18->23->26.
+PDF pages: 26
+PDF size bytes: 2120346

@@ -1,0 +1,5 @@
+Chronological graph verification passed.
+PDF pages: 26
+All corrected EMM tables ordered as 2, 18, 23, 26 for every outcome.
+Report text explicitly states trajectories are connected as 2 -> 18 -> 23 -> 26.
+PDF size bytes: 1897290

@@ -1,0 +1,4 @@
+Front-methods explanation verification passed.
+PDF pages: 27
+Confirmed terms in PDF: Statistical Methods Guide, BH FDR, Benjamini-Hochberg, LFC, Satterthwaite, q-value, EMM, contrast rules.
+PDF size bytes: 2123337

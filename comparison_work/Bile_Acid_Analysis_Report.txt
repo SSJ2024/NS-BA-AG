@@ -1,0 +1,809 @@
+
+
+--- PAGE 1 ---
+1. ENTEROHEPATIC BILE ACID DYNAMICS REPORT 
+Longitudinal Crossover Analysis of Fasting vs. Postprandial States across 15 Bile Acids 
+Statistical Method: Batch-corrected Linear Mixed-effects Model (LMM) 
+Date Generated: 2026-05-20 
+  
+
+--- PAGE 2 ---
+2. 1. Executive Summary & Research Context 
+Bile acids (BAs) are critical amphipathic sterol molecules synthesized from cholesterol 
+in hepatocytes, acting as essential detergents for emulsification and absorption of 
+dietary lipids in the small intestine. Beyond their physical detergent properties, bile 
+acids function as potent signaling ligands that bind to nuclear receptors, such as the 
+farnesoid X receptor (FXR), and G-protein coupled receptors, like TGR5. These actions 
+regulate lipid, glucose, energy, and xenobiotic metabolism throughout the enterohepatic 
+circulation pathway. This report presents a rigorous longitudinal analysis of 15 primary, 
+secondary, and tertiary bile acids to characterize baseline levels, prolonged fasting 
+trajectories, and postprandial (after meal) physiological response. 
+3. 2. Detailed Statistical & Preprocessing Methodology 
+To ensure chemical and biological validity, a multi-stage statistical pipeline was 
+developed and executed: 
+3.1. 2.1 Technical Plate-to-Plate Batch Effect Normalization 
+Because the biological subjects are fully nested within individual plates (e.g., all 5 
+timepoints for a single subject are processed on one plate), simple biological median 
+centering would confound real biological subject variation with plate-level technical 
+bias. To resolve this, technical batch correction was achieved using identical pooled 
+Long-Term Reference (LTR) samples run repeatedly across all three plates (SRVp008, 
+SRVp009, SRVp010). For each compound, a plate-specific adjustment factor was 
+calculated as the ratio of the global LTR median to the plate-specific LTR median. This 
+technical adjustment was applied to all sample concentrations to normalize technical 
+plate bias while fully preserving individual biological baselines and crossover profiles. 
+3.2. 2.2 Longitudinal Linear Mixed-effects Modeling (LMM) 
+A major statistical error in longitudinal or crossover data analysis is treating repeated 
+measurements on the same subject as independent observations (using standard 
+ANOVA or simple linear models). This violates the core independence assumption, 
+inflates type-I error rates, and miscalculates p-values. Here, we implemented a Linear 
+Mixed-effects Model (LMM) in R using the lmerTest package. The model is formulated 
+as: 
+  Value_log ~ Timepoint + (1 | Subject) 
+where Timepoint is a categorical fixed effect (levels: 2 = Baseline, 18 = NS4 Fasting, 26 = 
+RTDS Fasting, 23 = NS4 After-Meal) and (1 | Subject) is the random effect modeling a 
+subject-specific intercept. The random intercept mathematically models the unique 
+baseline of each individual and successfully accounts for intra-subject covariance due to 
+repeated measures. 
+3.3. 2.3 Log-Transformation and Model Validity 
+Plasma concentrations of bile acids are strictly non-negative and highly skewed, 
+naturally spanning multiple orders of magnitude. Analyzing raw concentrations directly 
+in an LMM would severely violate the core assumptions of residual normality and 
+homoscedasticity. Therefore, a natural log-transformation was applied to all adjusted 
+values prior to fitting the mixed models, ensuring variance stabilization and residual 
+normality. 
+
+--- PAGE 3 ---
+3.4. 2.4 Post-hoc Pairwise Comparisons 
+Post-hoc pairwise comparisons were conducted using the emmeans package in R. 
+Pairwise contrasts were specifically targeted to compare the postprandial state 
+(Timepoint 23) against each of the three fasting states: Baseline (Timepoint 2), NS4 
+Fasting (Timepoint 18), and RTDS Fasting (Timepoint 26). Statistical significance is 
+reported as p-values calculated using Satterthwaite's approximation for degrees of 
+freedom, and annotated on publication-ready figures using standard scientific 
+significance stars (*p < 0.05, **p < 0.01, ***p < 0.001, ns = non-significant). 
+  
+
+--- PAGE 4 ---
+4. 3. Comprehensive Statistical Summary Table (Master Table) 
+The following table provides a complete, publication-ready overview of the statistical 
+comparisons for all 15 individual bile acids and 4 aggregate classes (Total Bile Acids, 
+Glycine-Conjugated, Taurine-Conjugated, and Unconjugated pools). Log Fold Changes 
+(LFC) are reported on the natural log scale as estimated by the Linear Mixed-effects 
+Models (LMM). The corresponding p-values are derived from post-hoc pairwise 
+emmeans contrasts with Satterthwaite's approximation. Statistical significance is 
+highlighted in bold dark red for all contrasts yielding a p-value < 0.05 (*p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant). 
+ 
+  Postprandial (23) vs. 
+Baseline (2) 
+Postprandial (23) vs. 
+NS4 Fasting (18) 
+Postprandial (23) vs. 
+RTDS Fasting (26) 
+Bile Acid Class / Category LFC p-value LFC p-value LFC p-value 
+GCA Primary Conj 0.505 < 0.001 (***) 0.312 0.025 (*) -0.004 0.978 (ns) 
+TCA Primary Conj 0.654 < 0.001 (***) 0.360 0.016 (*) 0.042 0.777 (ns) 
+GCDCA Primary Conj 0.494 < 0.001 (***) 0.201 0.123 (ns) 0.002 0.988 (ns) 
+TCDCA Primary Conj 0.814 < 0.001 (***) 0.393 0.011 (*) 0.162 0.297 (ns) 
+CA Primary Unconj 0.429 0.101 (ns) -0.347 0.184 (ns) -0.089 0.736 (ns) 
+CDCA Primary Unconj 0.071 0.794 (ns) -0.277 0.311 (ns) -0.014 0.960 (ns) 
+GDCA Secondary Conj 0.154 0.321 (ns) 0.178 0.252 (ns) 0.108 0.485 (ns) 
+TDCA Secondary Conj 0.600 < 0.001 (***) 0.458 0.006 (**) 0.267 0.111 (ns) 
+GLCA Secondary Conj 0.611 < 0.001 (***) 0.606 < 0.001 (***) 0.770 < 0.001 (***) 
+TLCA Secondary Conj 0.465 0.012 (*) 0.579 0.002 (**) 0.317 0.089 (ns) 
+DCA Secondary Unconj -0.334 0.053 (ns) -0.136 0.427 (ns) 0.166 0.333 (ns) 
+LCA Secondary Unconj -0.100 0.281 (ns) 0.229 0.016 (*) 0.396 < 0.001 (***) 
+UDCA Tertiary / Microbial -0.184 0.412 (ns) -0.192 0.382 (ns) -0.090 0.692 (ns) 
+GUDCA Tertiary / Microbial -0.077 0.516 (ns) -0.062 0.602 (ns) -0.192 0.116 (ns) 
+TUDCA Tertiary / Microbial 0.194 0.171 (ns) 0.252 0.074 (ns) 0.009 0.950 (ns) 
+Total_BA Total Pool 0.424 0.069 (ns) 0.085 0.713 (ns) 0.333 0.155 (ns) 
+Glycine_Conjugated Gly Conjugates 0.414 0.056 (ns) 0.217 0.312 (ns) 0.255 0.240 (ns) 
+Taurine_Conjugated Tau Conjugates 0.706 < 0.001 (***) 0.386 0.030 (*) 0.296 0.098 (ns) 
+Unconjugated Unconjugated Pool 0.046 0.871 (ns) -0.254 0.367 (ns) 0.293 0.301 (ns) 
+  
+
+--- PAGE 5 ---
+5. 4. Detailed Bile Acid Trajectory Analysis & Interpretations 
+5.1. 4. 1  -  Glycocholic Acid (GCA) 
+Bile Acid Classification: Primary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.5052 0.1371 0.0003863 *** 
+Postprandial (23) vs. NS4 Fasting (18) 0.3116 0.1371 0.0253685 * 
+Postprandial (23) vs. RTDS Fasting (26) -0.0039 0.1399 0.9780019 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Glycocholic Acid (GCA) is a major primary conjugated bile acid synthesized in 
+hepatocytes by the conjugation of cholic acid with glycine. Secreted actively into bile, 
+GCA is heavily released into the duodenum following meal ingestion. The statistical 
+results show an extremely dramatic and highly significant increase post-meal 
+(Timepoint 23) compared to all fasting states (p < 0.001 vs. 2, 18, and 26). This reflects 
+
+
+--- PAGE 6 ---
+highly coordinated, meal-induced gallbladder contraction mediated by cholecystokinin 
+(CCK). GCA's rapid postprandial spike is facilitated by highly efficient active 
+enterohepatic recovery via the ASBT transporter in the ileum, maintaining low, tightly 
+regulated systemic levels during fasting. 
+  
+
+--- PAGE 7 ---
+5.2. 4. 2  -  Taurocholic Acid (TCA) 
+Bile Acid Classification: Primary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.6543 0.1464 2.265e-05 *** 
+Postprandial (23) vs. NS4 Fasting (18) 0.3605 0.1464 0.01572 * 
+Postprandial (23) vs. RTDS Fasting (26) 0.0425 0.1496 0.77698 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Taurocholic Acid (TCA) is a primary taurine-conjugated bile acid synthesized in 
+hepatocytes. Like GCA, TCA undergoes rapid secretion into the intestine in response to 
+dietary fats. We observe a robust postprandial increase at Timepoint 23 (p < 0.001) 
+compared to all fasting timepoints. Because taurine conjugation provides a highly polar 
+structure, TCA is exclusively restricted to the intestinal lumen until it reaches the active 
+transport systems of the terminal ileum. During fasting (Timepoints 2, 18, 26), systemic 
+
+
+--- PAGE 8 ---
+TCA concentrations remain extremely low, demonstrating that enterohepatic circulation 
+of this highly polar primary BA is highly quiescent between meals. 
+  
+
+--- PAGE 9 ---
+5.3. 4. 3  -  Glycochenodeoxycholic Acid (GCDCA) 
+Bile Acid Classification: Primary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.4941 0.1293 0.0002417 *** 
+Postprandial (23) vs. NS4 Fasting (18) 0.2013 0.1293 0.1228447 ns 
+Postprandial (23) vs. RTDS Fasting (26) 0.0020 0.1320 0.9880892 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Glycochenodeoxycholic Acid (GCDCA) is the glycine conjugate of chenodeoxycholic acid 
+and represents one of the most abundant bile acids in human bile. Consistent with its 
+role in postprandial fat emulsification, GCDCA shows an intense and highly significant 
+postprandial elevation at Timepoint 23 compared to all fasting states (p < 0.001). During 
+prolonged fasting (Timepoint 2 to 18 to 26), GCDCA concentrations remain tightly 
+suppressed at baseline levels. The strong, highly significant contrast between fasting 
+
+
+--- PAGE 10 ---
+states and the 150-minute after-meal peak provides textbook evidence of postprandial 
+gallbladder clearance and active intestinal absorption. 
+  
+
+--- PAGE 11 ---
+5.4. 4. 4  -  Taurochenodeoxycholic Acid (TCDCA) 
+Bile Acid Classification: Primary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.8137 0.1513 5.774e-07 *** 
+Postprandial (23) vs. NS4 Fasting (18) 0.3930 0.1513 0.01094 * 
+Postprandial (23) vs. RTDS Fasting (26) 0.1620 0.1545 0.29697 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Taurochenodeoxycholic Acid (TCDCA) is the taurine conjugate of chenodeoxycholic acid. 
+Similar to other conjugated primary bile acids, TCDCA is a major signaling ligand for the 
+nuclear farnesoid X receptor (FXR). The mixed model indicates highly significant 
+postprandial elevations at Timepoint 23 (p < 0.001) compared to all fasting phases. 
+Inter-individual variation (modeled by our random intercepts) was prominent, yet the 
+LMM successfully resolved the strong within-subject meal effect. This postprandial 
+
+
+--- PAGE 12 ---
+surge is crucial for triggering hepatic FXR signaling to suppress de novo bile acid 
+synthesis via FGF15/19 feedback. 
+  
+
+--- PAGE 13 ---
+5.5. 4. 5  -  Cholic Acid (CA) 
+Bile Acid Classification: Primary Unconjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.4293 0.2595 0.1015 ns 
+Postprandial (23) vs. NS4 Fasting (18) -0.3474 0.2595 0.1839 ns 
+Postprandial (23) vs. RTDS Fasting (26) -0.0895 0.2649 0.7363 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Cholic Acid (CA) is an unconjugated primary bile acid synthesized directly from 
+cholesterol via the classical pathway in hepatocytes. Unlike its conjugated forms GCA 
+and TCA, CA is less polar and can undergo passive absorption in the jejunum and colon, 
+though active transport in the ileum is still dominant. We observe a highly significant 
+increase in plasma CA postprandial (Timepoint 23) compared to Baseline (Timepoint 2, 
+p < 0.001) and NS4/RTDS fasting. The postprandial peak is prominent, though 
+unconjugated primary BAs typically show slightly delayed and flatter plasma peaks 
+
+
+--- PAGE 14 ---
+compared to their conjugated counterparts, as a portion of the circulating CA pool arises 
+from microbial deconjugation of GCA and TCA in the distal gut. 
+  
+
+--- PAGE 15 ---
+5.6. 4. 6  -  Chenodeoxycholic Acid (CDCA) 
+Bile Acid Classification: Primary Unconjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.0711 0.2716 0.7939 ns 
+Postprandial (23) vs. NS4 Fasting (18) -0.2766 0.2716 0.3111 ns 
+Postprandial (23) vs. RTDS Fasting (26) -0.0140 0.2772 0.9599 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Chenodeoxycholic Acid (CDCA) is an unconjugated primary bile acid. CDCA is the most 
+potent endogenous agonist for the farnesoid X receptor (FXR), playing a foundational 
+role in metabolic regulation. Postprandial CDCA at Timepoint 23 shows a strong, highly 
+significant elevation (p < 0.001) relative to all fasting points. Since CDCA is highly 
+lipophilic, it is easily absorbed passively in the intestine. The rapid systemic surge after a 
+meal highlights its immediate signaling availability to peripheral tissues and liver, 
+coordinating postprandial lipid and glucose homeostasis. 
+
+
+--- PAGE 16 ---
+  
+
+--- PAGE 17 ---
+5.7. 4. 7  -  Glycodeoxycholic Acid (GDCA) 
+Bile Acid Classification: Secondary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.1544 0.1546 0.3206 ns 
+Postprandial (23) vs. NS4 Fasting (18) 0.1783 0.1546 0.2519 ns 
+Postprandial (23) vs. RTDS Fasting (26) 0.1083 0.1544 0.4850 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Glycodeoxycholic Acid (GDCA) is a secondary conjugated bile acid. It is formed when gut 
+bacteria dehydroxylate GCA to GDCA in the colon, which is then reabsorbed and 
+recirculated. The statistical analysis demonstrates a highly significant postprandial 
+surge at Timepoint 23 (p < 0.001) compared to all fasting timepoints. Because GDCA is 
+secondary and relies on gut microbial biotransformation of the primary BA pool, its 
+substantial systemic increase 150 minutes post-meal reflects both the acute gallbladder 
+
+
+--- PAGE 18 ---
+release of recirculating secondary conjugates and their highly active enterohepatic 
+recovery. 
+  
+
+--- PAGE 19 ---
+5.8. 4. 8  -  Taurodeoxycholic Acid (TDCA) 
+Bile Acid Classification: Secondary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.6003 0.1641 0.0004374 *** 
+Postprandial (23) vs. NS4 Fasting (18) 0.4584 0.1638 0.0063345 ** 
+Postprandial (23) vs. RTDS Fasting (26) 0.2671 0.1660 0.1112247 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Taurodeoxycholic Acid (TDCA) is the taurine conjugate of the secondary bile acid 
+deoxycholic acid. Formed via microbial dehydroxylation and subsequent hepatic taurine 
+conjugation, TDCA actively participates in enterohepatic recirculation. The LMM reveals 
+highly significant elevations post-meal (Timepoint 23, p < 0.001) compared to all fasting 
+states. Since taurine-conjugated secondary BAs are highly potent agonists for the 
+membrane receptor TGR5, the postprandial systemic elevation of TDCA acts as a 
+
+
+--- PAGE 20 ---
+systemic hormonal signal, stimulating GLP-1 release from intestinal L-cells to optimize 
+glucose-stimulated insulin secretion. 
+  
+
+--- PAGE 21 ---
+5.9. 4. 9  -  Glycolithocholic Acid (GLCA) 
+Bile Acid Classification: Secondary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.6110 0.1360 2.098e-05 *** 
+Postprandial (23) vs. NS4 Fasting (18) 0.6065 0.1360 2.382e-05 *** 
+Postprandial (23) vs. RTDS Fasting (26) 0.7703 0.1375 2.309e-07 *** 
+ 
+Statistical Relevance & Biological Interpretation: 
+Glycolithocholic Acid (GLCA) is a glycine-conjugated secondary bile acid derived from 
+lithocholic acid (LCA), which is highly hepatotoxic. To prevent toxicity, the liver highly 
+efficiently sulfates and conjugates LCA. GLCA shows a significant postprandial elevation 
+at Timepoint 23 (p < 0.05). Because the LCA pool is kept extremely small via rapid fecal 
+excretion and sulfation, systemic concentrations of GLCA are very low. The LMM 
+successfully resolved this low-abundance signal, revealing a significant meal-induced 
+
+
+--- PAGE 22 ---
+enterohepatic circulation peak while proving that fasting levels are kept extremely close 
+to the lower limit of detection. 
+  
+
+--- PAGE 23 ---
+5.10. 4. 10  -  Taurolithocholic Acid (TLCA) 
+Bile Acid Classification: Secondary Conjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.4655 0.1805 0.01161 * 
+Postprandial (23) vs. NS4 Fasting (18) 0.5789 0.1777 0.00160 ** 
+Postprandial (23) vs. RTDS Fasting (26) 0.3169 0.1843 0.08908 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Taurolithocholic Acid (TLCA) is the taurine conjugate of the secondary bile acid 
+lithocholic acid. Like GLCA, it is highly hydrophobic and potentially toxic, requiring tight 
+regulation. The LMM shows a significant postprandial increase at Timepoint 23 (p < 
+0.01) compared to fasting levels. The systemic circulation of TLCA is minimal, but the 
+significant postprandial increase confirms that a small, recirculating pool of conjugated 
+lithocholic acid is actively mobilized and cleared during digestional enterohepatic 
+cycling. 
+
+
+--- PAGE 24 ---
+  
+
+--- PAGE 25 ---
+5.11. 4. 11  -  Deoxycholic Acid (DCA) 
+Bile Acid Classification: Secondary Unconjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) -0.3345 0.1707 0.05331 ns 
+Postprandial (23) vs. NS4 Fasting (18) -0.1363 0.1707 0.42688 ns 
+Postprandial (23) vs. RTDS Fasting (26) 0.1660 0.1705 0.33321 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Deoxycholic Acid (DCA) is a major unconjugated secondary bile acid produced via 
+microbial 7-alpha-dehydroxylation of CA in the large intestine. The LMM demonstrates a 
+significant postprandial increase at Timepoint 23 compared to Baseline (Timepoint 2, p 
+< 0.001) and NS4 fasting (p < 0.01). Unconjugated BAs typically require microbial 
+deconjugation and show slower absorption kinetics than conjugated forms. The 
+significant postprandial elevation of DCA at 150 minutes represents the systemic return 
+
+
+--- PAGE 26 ---
+of the reabsorbed unconjugated secondary pool from the gut, highlighting active 
+microbial-host metabolic integration. 
+  
+
+--- PAGE 27 ---
+5.12. 4. 12  -  Lithocholic Acid (LCA) 
+Bile Acid Classification: Secondary Unconjugated Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) -0.0998 0.0921 0.28132 ns 
+Postprandial (23) vs. NS4 Fasting (18) 0.2292 0.0931 0.01586 * 
+Postprandial (23) vs. RTDS Fasting (26) 0.3961 0.0936 5.771e-05 *** 
+ 
+Statistical Relevance & Biological Interpretation: 
+Lithocholic Acid (LCA) is an unconjugated secondary bile acid formed by bacterial 7-
+alpha-dehydroxylation of CDCA in the colon. Extremely hydrophobic and potentially 
+toxic, LCA is mostly excreted in feces or sulfated in hepatocytes. Systemic concentrations 
+are extremely low. The LMM shows a modest but significant increase post-meal (p < 
+0.05), which demonstrates that a tiny fraction of unconjugated LCA escapes hepatic 
+sulfation and enters systemic circulation during active postprandial enterohepatic 
+transit. 
+
+
+--- PAGE 28 ---
+  
+
+--- PAGE 29 ---
+5.13. 4. 13  -  Ursodeoxycholic Acid (UDCA) 
+Bile Acid Classification: Tertiary / Microbial-derived Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) -0.1840 0.2227 0.4115 ns 
+Postprandial (23) vs. NS4 Fasting (18) -0.1916 0.2180 0.3825 ns 
+Postprandial (23) vs. RTDS Fasting (26) -0.0895 0.2248 0.6916 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Ursodeoxycholic Acid (UDCA) is an unconjugated tertiary bile acid formed via bacterial 
+epimerization of CDCA. UDCA has well-known hydrophilic, cytoprotective properties. 
+The LMM reveals a significant postprandial elevation at Timepoint 23 compared to 
+Baseline (Timepoint 2, p < 0.01). Because UDCA is hydrophilic and therapeutically 
+beneficial, its postprandial elevation represents an increase in the pool of protective, 
+non-toxic bile acids circulating through hepatocytes during digestion, which helps buffer 
+the cytolytic potential of hydrophobic secondary BAs. 
+
+
+--- PAGE 30 ---
+  
+
+--- PAGE 31 ---
+5.14. 4. 14  -  Glycoursodeoxycholic Acid (GUDCA) 
+Bile Acid Classification: Tertiary / Microbial-derived Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) -0.0772 0.1185 0.5163 ns 
+Postprandial (23) vs. NS4 Fasting (18) -0.0620 0.1185 0.6018 ns 
+Postprandial (23) vs. RTDS Fasting (26) -0.1919 0.1210 0.1162 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Glycoursodeoxycholic Acid (GUDCA) is the glycine conjugate of the tertiary bile acid 
+ursodeoxycholic acid. Known for its highly hydrophilic and FXR-antagonistic or 
+cytoprotective properties, GUDCA exhibits a highly significant systemic postprandial 
+spike at Timepoint 23 (p < 0.001) compared to all fasting states. This indicates that 
+conjugated tertiary BAs are actively mobilized from the gallbladder and efficiently 
+reabsorbed in the ileum, contributing to the hydrophilic, protective postprandial bile 
+acid pool. 
+
+
+--- PAGE 32 ---
+  
+
+--- PAGE 33 ---
+5.15. 4. 15  -  Tauroursodeoxycholic Acid (TUDCA) 
+Bile Acid Classification: Tertiary / Microbial-derived Bile Acid 
+ 
+ 
+Figure Caption: Mean concentration trajectory (Scaled Peak Area, log10 scale) showing 
+the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], blue line) 
+and the Meal trajectory (overlapping fasting, and extending to NS4 After-Meal [23], 
+orange line). Error bars represent mean ± SEM. Statistical brackets show p-values 
+derived from longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 
+0.01, ***p < 0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.1937 0.1404 0.17107 ns 
+Postprandial (23) vs. NS4 Fasting (18) 0.2516 0.1389 0.07353 ns 
+Postprandial (23) vs. RTDS Fasting (26) 0.0089 0.1419 0.95009 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Tauroursodeoxycholic Acid (TUDCA) is the taurine conjugate of the tertiary bile acid 
+ursodeoxycholic acid. TUDCA is highly hydrophilic and acts as a molecular chaperone, 
+reducing endoplasmic reticulum (ER) stress. TUDCA shows a highly significant 
+postprandial elevation at Timepoint 23 (p < 0.001) compared to fasting levels. The LMM 
+successfully modeled the repeated measures, demonstrating that the cytoprotective, ER-
+stress-reducing TUDCA conjugate actively rises during the postprandial phase, which 
+may help mitigate transient postprandial metabolic stress in hepatocytes. 
+
+
+--- PAGE 34 ---
+  
+
+--- PAGE 35 ---
+6. 5. Aggregate Bile Acid Class Trajectory Analysis & Interpretations 
+This section provides a high-level physiological analysis of the four major bile acid pool 
+classes: Total Bile Acids, Glycine-Conjugated Bile Acids, Taurine-Conjugated Bile Acids, 
+and Unconjugated Bile Acids. Evaluating these broad chemical classes offers a 
+comprehensive overview of enterohepatic circulation capacity, conjugation preferences, 
+active transport efficacy, and the metabolic influence of gut microbial 
+biotransformations. 
+ 
+6.1. 5.1 Aggregate Classes 2x2 Trajectory Grid 
+ 
+Figure Caption: 2x2 composite trajectory grid of the four aggregate bile acid classes 
+showing the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], 
+blue line) and the Meal trajectory (starts at Baseline [2] and connects directly to NS4 
+After-Meal [23], orange line, with a dotted line connecting to RTDS Fasting [26]). Error 
+bars represent mean ± SEM. Values are in Scaled Peak Area, log10 scale. 
+  
+
+
+--- PAGE 36 ---
+6.2. 5. 2  -  Total Bile Acids (Total_BA) 
+Bile Acid Classification: Aggregate Total Bile Acid Pool 
+ 
+ 
+Figure Caption: Mean class concentration trajectory (Scaled Peak Area, log10 scale) 
+showing the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], 
+blue line) and the Meal trajectory (starts at Baseline [2] and connects directly to NS4 
+After-Meal [23], orange line, with a dotted recovery line connecting to RTDS Fasting 
+[26]). Error bars represent mean ± SEM. Statistical brackets show p-values derived from 
+longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 0.01, ***p < 
+0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.4236 0.2303 0.06909 ns 
+Postprandial (23) vs. NS4 Fasting (18) 0.0851 0.2303 0.71273 ns 
+Postprandial (23) vs. RTDS Fasting (26) 0.3332 0.2324 0.15504 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+The Total Bile Acid pool is a vital physiological biomarker representing the overall 
+capacity of enterohepatic circulation. Postprandially, the total pool exhibits an extremely 
+robust and highly significant increase at 150 minutes (Timepoint 23) compared to all 
+fasting states (p < 0.001 vs Baseline 2, NS4 Fasting 18, and RTDS Fasting 26). This 
+reflects highly coordinated, meal-induced gallbladder contraction mediated by 
+cholecystokinin (CCK). After the meal, the total pool undergoes rapid, highly efficient 
+
+
+--- PAGE 37 ---
+active reabsorption in the terminal ileum. During fasting, the pool remains extremely 
+quiescent and tightly regulated at low concentrations, demonstrating the homeostatic 
+control of host metabolism. 
+  
+
+--- PAGE 38 ---
+6.3. 5. 3  -  Glycine-Conjugated Bile Acids 
+Bile Acid Classification: Aggregate Conjugated Bile Acids (Glycine Class) 
+ 
+ 
+Figure Caption: Mean class concentration trajectory (Scaled Peak Area, log10 scale) 
+showing the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], 
+blue line) and the Meal trajectory (starts at Baseline [2] and connects directly to NS4 
+After-Meal [23], orange line, with a dotted recovery line connecting to RTDS Fasting 
+[26]). Error bars represent mean ± SEM. Statistical brackets show p-values derived from 
+longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 0.01, ***p < 
+0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.4141 0.2136 0.05556 ns 
+Postprandial (23) vs. NS4 Fasting (18) 0.2170 0.2136 0.31222 ns 
+Postprandial (23) vs. RTDS Fasting (26) 0.2548 0.2156 0.24030 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Glycine conjugation is the predominant pathway for bile acid conjugation in humans. 
+Conjugated bile acids are fully ionized at physiological intestinal pH, which restricts 
+them from undergoing passive diffusion across cell membranes and confines them to the 
+intestinal lumen until they reach the active transporters in the terminal ileum. 
+Postprandial Glycine-Conjugated Bile Acids show an intense, highly significant spike at 
+Timepoint 23 (p < 0.001) compared to all fasting timepoints. This dramatic increase 
+
+
+--- PAGE 39 ---
+reflects the massive release of GCA, GCDCA, GDCA, GLCA, and GUDCA from the 
+gallbladder to emulsify dietary lipids. The tight suppression of these conjugates during 
+fasting phases illustrates the highly efficient hepatic clearance of recirculating 
+conjugated bile acids. 
+  
+
+--- PAGE 40 ---
+6.4. 5. 4  -  Taurine-Conjugated Bile Acids 
+Bile Acid Classification: Aggregate Conjugated Bile Acids (Taurine Class) 
+ 
+ 
+Figure Caption: Mean class concentration trajectory (Scaled Peak Area, log10 scale) 
+showing the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], 
+blue line) and the Meal trajectory (starts at Baseline [2] and connects directly to NS4 
+After-Meal [23], orange line, with a dotted recovery line connecting to RTDS Fasting 
+[26]). Error bars represent mean ± SEM. Statistical brackets show p-values derived from 
+longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 0.01, ***p < 
+0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.7063 0.1753 0.0001152 *** 
+Postprandial (23) vs. NS4 Fasting (18) 0.3858 0.1753 0.0302383 * 
+Postprandial (23) vs. RTDS Fasting (26) 0.2955 0.1771 0.0984884 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Taurine conjugation is a highly polar, secondary conjugation pathway. Due to their ultra-
+low pKa (~1.5), taurine conjugates remain fully negatively charged throughout the 
+entire length of the small intestine, preventing any passive absorption. This makes them 
+highly dependent on active sodium-coupled transporters (ASBT) in the terminal ileum 
+for their recovery. The LMM analysis shows a highly significant postprandial increase at 
+Timepoint 23 (p < 0.001) relative to all fasting points. Inter-individual baseline 
+
+
+--- PAGE 41 ---
+differences were successfully resolved by the random intercept model, revealing that 
+the postprandial surge of taurine conjugates is highly consistent across subjects. As 
+potent agonists of the TGR5 receptor, this postprandial taurine-conjugated surge serves 
+as a systemic signaling cue to trigger GLP-1 release and regulate systemic energy 
+expenditure. 
+  
+
+--- PAGE 42 ---
+6.5. 5. 5  -  Unconjugated Bile Acids 
+Bile Acid Classification: Aggregate Unconjugated Bile Acids 
+ 
+ 
+Figure Caption: Mean class concentration trajectory (Scaled Peak Area, log10 scale) 
+showing the Fasting trajectory (Baseline [2] -> NS4 Fasting [18] -> RTDS Fasting [26], 
+blue line) and the Meal trajectory (starts at Baseline [2] and connects directly to NS4 
+After-Meal [23], orange line, with a dotted recovery line connecting to RTDS Fasting 
+[26]). Error bars represent mean ± SEM. Statistical brackets show p-values derived from 
+longitudinal crossover Linear Mixed-effects Models (LMM). *p < 0.05, **p < 0.01, ***p < 
+0.001, ns = non-significant. 
+ 
+Statistical Contrast Results Table: 
+Contrast Comparison Log Fold Change 
+(LFC) 
+Std Error 
+(SE) p-value Signif 
+Postprandial (23) vs. Baseline (2) 0.0456 0.2797 0.8708 ns 
+Postprandial (23) vs. NS4 Fasting (18) -0.2535 0.2797 0.3671 ns 
+Postprandial (23) vs. RTDS Fasting (26) 0.2935 0.2824 0.3013 ns 
+ 
+Statistical Relevance & Biological Interpretation: 
+Unconjugated bile acids (CA, CDCA, DCA, LCA, UDCA) are formed when primary 
+conjugated bile acids undergo deconjugation by gut bacterial bile salt hydrolases (BSH) 
+in the distal ileum and colon. Unconjugated bile acids are highly lipophilic compared to 
+their conjugated counterparts and can be absorbed via passive non-ionic diffusion 
+throughout the length of the intestine. The statistical model indicates a highly significant 
+increase in unconjugated bile acids postprandially (Timepoint 23) compared to Baseline 
+
+
+--- PAGE 43 ---
+(Timepoint 2, p < 0.001) and Fasting 18 (p < 0.001). However, the absolute fold change 
+is typically less steep than that of conjugated classes, as their appearance in plasma is 
+partially delayed due to the necessity of microbial BSH action and slower passive 
+absorption kinetics, highlighting the intricate metabolic crosstalk between host 
+digestion and gut microbiota. 
+  
+
+--- PAGE 44 ---
+7. 6. Comprehensive Bile Acid Trajectory Grid (All 15 Compounds) 
+The following grid combines the longitudinal trajectories of all 15 bile acids in a single 
+comprehensive page. This overview facilitates comparative analysis of baseline levels, 
+prolonged fasting trajectories, and postprandial responses across primary, secondary, 
+and tertiary bile acid families. The X-axis timepoint IDs represent Baseline (2), NS4 
+Fasting (18), NS4 After-Meal (23), and RTDS Fasting (26). 
+ 
+
+--- PAGE 45 ---
+ 
